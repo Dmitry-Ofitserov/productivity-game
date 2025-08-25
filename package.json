@@ -1,0 +1,33 @@
+{
+    "scripts": {
+        "dev:next": "cd next-app && npm run dev",
+        "build:next": "cd next-app && npm run build",
+        "dev:electron": "set NODE_ENV=development&& electron electron/main.js",
+        "build:electron": "npm run build:next && electron-builder",
+        "dist": "npm run build:next && electron-builder --publish=never",
+        "start": "npm run build:next && electron electron/main.js"
+    },
+    "build": {
+        "appId": "com.yourcompany.yourapp",
+        "productName": "Your App Name",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "electron/**/*",
+            "next-app/out/**/*",
+            "next-app/public/**/*"
+        ]
+    },
+    "devDependencies": {
+        "@svgr/webpack": "^8.1.0",
+        "@types/chroma-js": "^3.1.1",
+        "electron-is-dev": "^3.0.1",
+        "electron-rebuild": "^3.2.9",
+        "electron-reload": "^2.0.0-alpha.1"
+    },
+    "dependencies": {
+        "better-sqlite3": "^12.2.0",
+        "chroma-js": "^3.1.2"
+    }
+}
