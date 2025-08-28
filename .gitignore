@@ -37,3 +37,9 @@ Desktop.ini
 
 # Optional: Test coverage
 coverage/
+
+# Database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3

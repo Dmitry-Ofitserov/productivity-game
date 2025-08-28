@@ -1,62 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useTogglData } from "../../hooks/useTogglData";
 import chroma from 'chroma-js';
 import Image from "next/image";
 
 import { BigSolvedTickMark, BigUnsolvedTickMark, SmallSolvedTickMark, SmallUnsolvedTickMark } from '../assets/tick-marks'
+import Table from "@/components/main-page/Table";
 
 
-function calculateDayOfWeek(year: number, day: number) {
-  
-  if (isNaN(year) || isNaN(day) || day < 1 || day > 366) {
-      alert('Please enter valid values. Day must be between 1 and 366.');
-      return;
-  }
-
-  const date = new Date(year, 0, 1);
-  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-  
-  if (day > 365 && !isLeapYear) {
-      alert(`${year} is not a leap year. Day must be between 1 and 365.`);
-      return;
-  }
-
-  date.setDate(day);
-  const dayOfWeek = date.getDay();
-  const mondayBasedDOW = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  
-  const startOfYear = new Date(year, 0, 1);
-  const startDay = startOfYear.getDay();
-  const adjustedStartDay = startDay === 0 ? 6 : startDay - 1; // Convert to Monday-based
-
-  return mondayBasedDOW;
+export type GoalDataAggregated = {
+  title: string;
+  currentLevel: number;
+  milestones: MilestoneDataAggregated[];
 }
 
-function calculateStartDay(year: number) {
-  const startOfYearDate = new Date(year, 0, 1);
-  const startDay = startOfYearDate.getDay();
-  const adjustedStartDOW = startDay === 0 ? 6 : startDay-1;
-
-  return adjustedStartDOW
+export type MilestoneDataAggregated = {
+  id: number;
+  description: string;
+  steps: StepData[];
 }
 
-function isLastDOWInMonth(date: Date) {
-  const dayOfWeek = date.getDay();
-  
-  const currentMonth = date.getMonth();
-  
-  const nextWeekSameDay = new Date(date);
-  nextWeekSameDay.setDate(date.getDate() + 7);
-  
-  return nextWeekSameDay.getMonth() !== currentMonth;
-}
-
-function isLastDayOfMonth(date: Date) {
-  const tomorrow = new Date(date);
-  tomorrow.setDate(date.getDate() + 1);
-  
-  return tomorrow.getMonth() !== date.getMonth();
+export type StepData = {
+  id: number;
+  description: string;
 }
 
 export default function Home() {
@@ -543,83 +508,77 @@ export default function Home() {
     ]
   };
 
-  const { data, isLoading, error } = useTogglData();
-  console.log("хуй", data, isLoading, error);
-  let startDOW = calculateStartDay(2028);
-  let date = new Date(2026, 0, 1);
-  let daysCount = 0;
+  const [ tableState, setTableState ] = useState();
 
-  let startDOW2 = calculateStartDay(2025);
-  let date2 = new Date(2023, 0, 1);
-  let daysCount2 = 0;
+  useEffect(() => {
+    console.log("start loading db data");
+    const loadData = async () => {
+      try {
+        const tableData = await window.electronAPI.getTable();
+        console.log("tableData", tableData);
+        const tasksData = await window.electronAPI.getTasks();
+        console.log("tasksData", tasksData);
+        const kanbanData = await window.electronAPI.getKanban();
+        console.log("kanbanData", kanbanData);
+        const goalsData = await window.electronAPI.getGoals();
+        console.log("goalsData", goalsData);
+        const milestonesData = await window.electronAPI.getMilestones();
+        console.log("milestonesData", milestonesData);
+        const stepsData = await window.electronAPI.getSteps();
+        console.log("stepsData", stepsData);
+        const tagsData = await window.electronAPI.getTags();
+        console.log("tagsData", tagsData);
+        const userData = await window.electronAPI.getUser(1);
+        console.log("userData", userData);
+
+        const tableDataAggregated = tableData.reduce((acc, row) => {
+          if (!acc[row.date]) acc[row.date] = {};
+          acc[row.date][row.task_id] = { hours: row.hours, points: row.points };
+          return acc;
+        }, {})
+        console.log("tableDataAggregated: ", tableDataAggregated);
+
+        const kanbanDataAggregated = kanbanData.reduce((acc, row) => {
+          if (!acc[row.id]) acc[row.id] = [];
+          acc[row.id][row.task_position] = row.task_id;
+          return acc
+        }, {})
+        console.log("kanbanDataAggregated ", kanbanDataAggregated);
+
+        const goalsDataAggregated = goalsData.reduce<GoalDataAggregated[]>((goalsAcc, rowGoal) => {
+          goalsAcc[rowGoal.position] = {
+            title: rowGoal.title,
+            currentLevel: rowGoal.current_level,
+            milestones: milestonesData.reduce<MilestoneDataAggregated[]>((milestonesAcc, rowMilestone) => {
+              if (rowMilestone.goal_id === rowGoal.id ) milestonesAcc[rowMilestone.position] = {
+                id: rowMilestone.id,
+                description: rowMilestone.description,
+                steps: stepsData.reduce<StepData[]>((stepsAcc, rowSteps) => {
+                  if (rowSteps.milestone_id === rowMilestone.id) stepsAcc[rowSteps.position] = {
+                    id: rowSteps.id,
+                    description: rowSteps.description
+                  };
+                  return stepsAcc;
+                }, [])
+              };
+              return milestonesAcc;
+            }, [])
+          };
+          return goalsAcc;
+        }, [])
+        console.log("goalsDataAggregated: ", goalsDataAggregated);
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    loadData();
+    
+  })
+
   return (
     <div className="flex flex-col h-screen">
-      <div className=" bg-[#000000]">
-        <div 
-          className="m-[2px] aspect-158/14 grid grid-cols-[repeat(158, 1fr)] grid-rows-[repeat(158, 1fr)]">
-          {Array.from({ length: 158 }).flatMap((_, column) => 
-            Array.from({ length: 7}).map((_, row) => {
-              if (daysCount !== 0 || row >= startDOW) {
-                daysCount++;
-                date = new Date(2026, 0, 1);
-                date.setDate(daysCount);
-              }
-              let borders = "";
-
-              if (isLastDayOfMonth(date) || daysCount === 0 && startDOW - row === 1)
-                {borders = "border-r-[1px] border-b-[1px]"}
-              else if (isLastDOWInMonth(date) || daysCount === 0 && startDOW - row > 1) 
-                {borders = "border-r-[1px]"}
-
-              if (daysCount !== 0 && column === 0)
-                {borders += " border-l-[1px]"}
-              if (row === 6 && column !== 157)
-                {borders += " border-b-[1px]"}
-              if (daysCount !== 0 && row === 0)
-                {borders += " border-t-[1px]"}
-
-              return (
-              <div key={`${column}-${row}`} 
-                className={`${borders}`}
-                style={{
-                  gridColumn: `${column+1} / span 1`,
-                  gridRow: `${row+1} / span 1`,
-                }}
-              >
-                {}
-              </div>
-            )})
-          )}
-          {Array.from({ length: 158 }).flatMap((_, column) => 
-            Array.from({ length: 7}).map((_, row) => {
-              if (daysCount2 !== 0 || row >= startDOW2) {
-                daysCount2++;
-                date2 = new Date(2026, 0, 1);
-                date2.setDate(daysCount2);
-              }
-              let borders = "";
-
-              if (isLastDayOfMonth(date2) || daysCount2 === 0 && startDOW2 - row === 1)
-                {borders = "border-r-[1px] border-b-[1px]"}
-              else if (isLastDOWInMonth(date2) || daysCount2 === 0 && startDOW2 - row > 1) 
-                {borders = "border-r-[1px]"}
-
-              if (daysCount2 !== 0 && column === 0)
-                {borders += " border-l-[1px]"}
-              if (row === 6 && daysCount2 < 1095)
-                {borders += " border-b-[1px]"}
-              return (
-              <div key={`${column}-${row+8}`} 
-                className={`${borders}`}
-                style={{
-                  gridColumn: `${column+1} / span 1`,
-                  gridRow: `${row+8} / span 1`,
-                }}
-              />
-            )})
-          )}
-        </div>
-      </div>
+      <Table/>
       <div className="flex-1 flex flex-col">
         <div className="flex-[3] flex m-[5px] border-[2px] border-[#404060] bg-[#181C20] rounded-[10px] overflow-hidden overflow-y-auto ">
             {Array.from({length: 9}).map((_, dow) => {
@@ -628,7 +587,7 @@ export default function Home() {
                   <div className="flex text-[13px] items-center justify-center border-b-[2px] border-[#383F4D] bg-[#222237]">
                     {DOWMap[dow]}
                   </div>
-                  <div className="flex flex-col text-[12px] gap-[3px] mt-[5px]">
+                  <div className="flex flex-col text-[10px] gap-[3px] mt-[5px]">
                     {columnEntries[DOWMap[dow] as keyof typeof columnEntries].map((task, index) => {
                       return (
                         <div key={`${index}`} className="border-[1px] border-[#666666] ml-[5px] mr-[5px] rounded-[5px] p-[5px] leading-tight font-[200] bg-[#1C2127]">
@@ -663,20 +622,7 @@ export default function Home() {
                           ) : 
                           null
                         }
-                        { Object.entries(milestone.steps).map((subMilestone, subMilestoneId) => {
-                          stepOrder++;
-                          return (
-                            <div key={`${subMilestoneId}`} className="flex-1 border-1 border-green-500">
-                              {stepOrder < Object.keys(milestone.).length ? 
-                                (milestoneOrder <= goal.currentLevel ? 
-                                  <BigSolvedTickMark className="absolute top-[-17px] w-[60px]" /> : 
-                                  <BigUnsolvedTickMark className="absolute left-[5px] top-[-6px] w-[50px]" />
-                                ) : 
-                                null
-                              }
-                            </div>
-                          )
-                        })}
+
                       </div>
                     )
                   })}   

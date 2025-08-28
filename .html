@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite Date Storage Guide</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            border-radius: 8px;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .option {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .pros-cons {
+            margin: 10px 0;
+        }
+        
+        .pros {
+            color: #27ae60;
+        }
+        
+        .cons {
+            color: #e74c3c;
+        }
+        
+        .recommendation {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #ffc107;
+            margin-top: 30px;
+            grid-column: 1 / -1;
+        }
+        
+        .recommendation h2 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .example {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: 6px;
+        }
+        
+        .example h3 {
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SQLite Date Storage Guide</h1>
+            <p class="subtitle">Best practices for storing and working with dates in SQLite</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>Date Storage Options</h2>
+                
+                <div class="option">
+                    <h3>1. ISO 8601 String Format</h3>
+                    <p>Store dates as text in ISO 8601 format: "YYYY-MM-DD HH:MM:SS.SSS"</p>
+                    <div class="pros-cons">
+                        <p class="pros">✓ Human-readable</p>
+                        <p class="pros">✓ Easy to debug</p>
+                        <p class="pros">✓ Native SQLite date functions work</p>
+                        <p class="cons">✗ Slightly larger storage size</p>
+                    </div>
+                    <div class="code-block">CREATE TABLE events (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  event_date TEXT  -- Stored as '2023-10-15 14:30:00'
+);</div>
+                </div>
+                
+                <div class="option">
+                    <h3>2. Unix Timestamp (Integer)</h3>
+                    <p>Store dates as integers representing seconds since Jan 1, 1970 (Unix epoch)</p>
+                    <div class="pros-cons">
+                        <p class="pros">✓ Compact storage</p>
+                        <p class="pros">✓ Easy date arithmetic</p>
+                        <p class="pros">✓ Timezone-independent</p>
+                        <p class="cons">✗ Not human-readable</p>
+                        <p class="cons">✗ Requires conversion</p>
+                    </div>
+                    <div class="code-block">CREATE TABLE events (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  event_date INTEGER  -- Stored as 1697373000
+);</div>
+                </div>
+                
+                <div class="option">
+                    <h3>3. Julian Day Numbers (Real)</h3>
+                    <p>Store dates as real numbers representing Julian day numbers</p>
+                    <div class="pros-cons">
+                        <p class="pros">✓ High precision</p>
+                        <p class="pros">✓ Native SQLite date functions work</p>
+                        <p class="pros">✓ Good for date calculations</p>
+                        <p class="cons">✗ Not human-readable</p>
+                    </div>
+                    <div class="code-block">CREATE TABLE events (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  event_date REAL  -- Stored as 2460234.10416667
+);</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Working with Dates in JavaScript</h2>
+                
+                <div class="example">
+                    <h3>ISO 8601 Strings</h3>
+                    <div class="code-block">// Storing date
+const now = new Date().toISOString(); 
+// "2023-10-15T14:30:00.000Z"
+
+// Retrieving date
+const date = new Date(isoString);</div>
+                </div>
+                
+                <div class="example">
+                    <h3>Unix Timestamps</h3>
+                    <div class="code-block">// Storing date
+const timestamp = Math.floor(Date.now() / 1000); 
+// 1697373000
+
+// Retrieving date
+const date = new Date(timestamp * 1000);</div>
+                </div>
+                
+                <div class="example">
+                    <h3>SQLite Date Functions</h3>
+                    <div class="code-block">-- ISO 8601 format works with SQLite date functions
+SELECT date(event_date) as event_day,
+       datetime(event_date, '+1 day') as next_day
+FROM events;
+
+-- Julian day calculations
+SELECT julianday('now') - julianday(event_date) as days_ago
+FROM events;</div>
+                </div>
+                
+                <div class="example">
+                    <h3>Timezone Considerations</h3>
+                    <div class="code-block">// Store dates in UTC
+const utcString = new Date().toISOString();
+
+// Convert to local time when displaying
+const date = new Date(utcString);
+const localString = date.toLocaleString();
+
+// For user input, convert to UTC before storing
+const userDate = new Date(userInputString);
+const utcForStorage = userDate.toISOString();</div>
+                </div>
+            </div>
+            
+            <div class="recommendation">
+                <h2>Recommendation</h2>
+                <p>For most applications, <strong>ISO 8601 string format</strong> is the best choice because:</p>
+                <ul>
+                    <li>It's human-readable for debugging</li>
+                    <li>It works natively with SQLite's date/time functions</li>
+                    <li>It's easy to work with in JavaScript</li>
+                    <li>It includes timezone information (UTC)</li>
+                </ul>
+                <p>Use Unix timestamps only if you need to optimize for storage size or perform extensive date arithmetic.</p>
+                <div class="code-block">-- Recommended approach
+CREATE TABLE tasks (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    due_date TEXT
+);
+
+-- Insert with automatic timestamps
+INSERT INTO tasks (title, due_date) 
+VALUES ('Complete project', '2023-12-31 23:59:59');
+
+-- Query using date functions
+SELECT * FROM tasks 
+WHERE date(due_date) BETWEEN date('now') AND date('now', '+7 days');</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
