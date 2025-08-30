@@ -1,3 +1,27 @@
+import { GoalDataAggregated, TableDataAggregated, TasksDataAggregated } from "@/app/page";
+import chroma from "chroma-js";
+
+function numberToColor(value: number): string {
+  const min = 0;
+  const max = 10;
+  const clamped = Math.min(Math.max(value, min), max);
+  if (value >= 10) {
+    // Special gradient case
+    return "linear-gradient(to bottom right, #FF0000, #FFFF00)";
+  }
+  const scale = chroma.scale(["#000000", "#66F669"]).domain([min, max]);
+
+  return scale(clamped).hex();
+}
+
+function dateToIso(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function calculateDayOfWeek(year: number, day: number) {
   
     if (isNaN(year) || isNaN(day) || day < 1 || day > 366) {
@@ -50,13 +74,20 @@ function calculateDayOfWeek(year: number, day: number) {
     return tomorrow.getMonth() !== date.getMonth();
   }
 
-export default function Table() {
+export default function Table({ tableState, setTableState, tasksState, goalsState }:
+  {
+    tableState: TableDataAggregated;
+    setTableState: React.Dispatch<React.SetStateAction<TableDataAggregated>>;
+    tasksState: TasksDataAggregated;
+    goalsState: GoalDataAggregated[];
+  }
+) {
     let startDOW = calculateStartDay(2028);
-    let date = new Date(2026, 0, 1);
+    let date = new Date(2028, 0, 1);
     let daysCount = 0;
   
     let startDOW2 = calculateStartDay(2025);
-    let date2 = new Date(2023, 0, 1);
+    let date2 = new Date(2025, 0, 1);
     let daysCount2 = 0;
     return (
       <div className="bg-[#000000]">
@@ -66,9 +97,15 @@ export default function Table() {
           Array.from({ length: 7}).map((_, row) => {
             if (daysCount !== 0 || row >= startDOW) {
               daysCount++;
-              date = new Date(2026, 0, 1);
+              date = new Date(2028, 0, 1);
               date.setDate(daysCount);
             }
+
+            const isoDate = dateToIso(date);
+            const hours = tableState[isoDate]?.hours;
+            const points = tableState[isoDate]?.points;
+            const cellColor = hours != null? numberToColor(hours): "#000000";
+
             let borders = "";
 
             if (isLastDayOfMonth(date) || daysCount === 0 && startDOW - row === 1)
@@ -85,13 +122,21 @@ export default function Table() {
 
             return (
             <div key={`${column}-${row}`} 
-              className={`${borders}`}
+              className={`${borders} relative`}
               style={{
                 gridColumn: `${column+1} / span 1`,
                 gridRow: `${row+1} / span 1`,
+                background: cellColor
               }}
             >
-              {}
+              <img 
+                src={`main-page/hour-marks/${Math.min(Math.floor(points/2), 7)}.svg`} 
+                className="absolute inset-0 m-auto"
+                style={{
+                  transform: "scale(0.7)",
+                }}
+                alt=""
+              />
             </div>
           )})
         )}
@@ -99,29 +144,45 @@ export default function Table() {
           Array.from({ length: 7}).map((_, row) => {
             if (daysCount2 !== 0 || row >= startDOW2) {
               daysCount2++;
-              date2 = new Date(2026, 0, 1);
+              date2 = new Date(2025, 0, 1);
               date2.setDate(daysCount2);
-            }
-            let borders = "";
+              
+              const isoDate = dateToIso(date2);
+              const hours = tableState[isoDate]?.hours;
+              const points = tableState[isoDate]?.points;
+              const cellColor = hours != null? numberToColor(hours): "#000000";
 
-            if (isLastDayOfMonth(date2) || daysCount2 === 0 && startDOW2 - row === 1)
-              {borders = "border-r-[1px] border-b-[1px]"}
-            else if (isLastDOWInMonth(date2) || daysCount2 === 0 && startDOW2 - row > 1) 
-              {borders = "border-r-[1px]"}
+              let borders = "";
 
-            if (daysCount2 !== 0 && column === 0)
-              {borders += " border-l-[1px]"}
-            if (row === 6 && daysCount2 < 1095)
-              {borders += " border-b-[1px]"}
-            return (
-            <div key={`${column}-${row+8}`} 
-              className={`${borders}`}
-              style={{
-                gridColumn: `${column+1} / span 1`,
-                gridRow: `${row+8} / span 1`,
-              }}
-            />
-          )})
+              if (isLastDayOfMonth(date2) || daysCount2 === 0 && startDOW2 - row === 1)
+                {borders = "border-r-[1px] border-b-[1px]"}
+              else if (isLastDOWInMonth(date2) || daysCount2 === 0 && startDOW2 - row > 1) 
+                {borders = "border-r-[1px]"}
+
+              if (daysCount2 !== 0 && column === 0)
+                {borders += " border-l-[1px]"}
+              if (row === 6 && daysCount2 < 1095)
+                {borders += " border-b-[1px]"}
+              
+              return (
+              <div key={`${column}-${row+8}`} 
+                className={`${borders} relative`}
+                style={{
+                  gridColumn: `${column+1} / span 1`,
+                  gridRow: `${row+8} / span 1`,
+                  background: cellColor
+                }}
+              >
+                <img 
+                  src={`main-page/hour-marks/${Math.min(Math.floor(points/2), 7)}.svg`} 
+                  className="absolute inset-0 m-auto"
+                  style={{
+                    transform: "scale(0.7)",
+                  }}
+                  alt=""
+                  />
+              </div>
+          )}})
         )}
       </div>
     </div>

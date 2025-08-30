@@ -51,30 +51,34 @@ export const BigUnsolvedTickMark = ({ className = "w-10 h-2", ...props }) => (
 </svg>
 );
 
-
-export const SmallSolvedTickMark = ({ className = "w-8 h-2", ...props }) => (
-    <svg viewBox="0 0 32 8" className={className} {...props}>
-      <path 
-        d="M0.470703 3.61301C0.470703 1.68317 2.28627 0.261 4.18995 0.577664C7.67664 1.15765 11.7065 1.48973 16 1.48975C20.2935 1.48974 24.3233 1.15767 27.81 0.577675C29.7137 0.261009 31.5293 1.68318 31.5293 3.61302V3.61302C31.5293 4.9771 30.6014 6.17346 29.2623 6.43331C25.4629 7.17058 20.9035 7.60204 16 7.60205C11.0965 7.60204 6.53705 7.17056 2.73767 6.4333C1.39856 6.17345 0.470703 4.97709 0.470703 3.61301V3.61301Z" 
-        fill="url(#paint0_linear_631_2607)"
-      />
-      <defs>
-        <linearGradient 
-          id="paint0_linear_631_2607" 
-          x1="-7.99982" 
-          y1="-1.10803" 
-          x2="39.9998" 
-          y2="-1.10803" 
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#15BA00"/>
-          <stop offset="0.427109" stopColor="#0CE500"/>
-          <stop offset="1" stopColor="#15BA00"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-
+export const SmallSolvedTickMark = ({ className = "w-10 h-2.75", ...props }) => (
+  <svg 
+    viewBox="0 0 26 10" 
+    className={className} 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path 
+      d="M0 4.61087C0 1.84075 2.52167 -0.249575 5.27822 0.0241816C7.7014 0.26483 10.2985 0.395688 13 0.395688C15.7015 0.395688 18.2987 0.264785 20.7219 0.0241157C23.4784 -0.249657 26 1.84064 26 4.61072V4.61072C26 6.73723 24.4876 8.57645 22.3773 8.83868C19.4965 9.19664 16.3275 9.39569 13 9.39569C9.67247 9.39569 6.50334 9.1967 3.62258 8.83871C1.51236 8.57649 0 6.73731 0 4.61087V4.61087Z" 
+      fill="url(#paint0_linear_small_solved)"
+    />
+    <defs>
+      <linearGradient 
+        id="paint0_linear_small_solved" 
+        x1="-11" 
+        y1="1.51687" 
+        x2="37" 
+        y2="1.51687" 
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#15B800"/>
+        <stop offset="0.427109" stopColor="#0CE700"/>
+        <stop offset="1" stopColor="#15B800"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 export const SmallUnsolvedTickMark = ({ className = "w-6 h-1.5", ...props }) => (
 <svg viewBox="0 0 24 5" className={className} {...props}>
@@ -91,9 +95,9 @@ export const SmallUnsolvedTickMark = ({ className = "w-6 h-1.5", ...props }) => 
         y2="-1.86413" 
         gradientUnits="userSpaceOnUse"
     >
-        <stop stopColor="#B2A6A6"/>
-        <stop offset="0.427109" stopColor="#EAE1E1"/>
-        <stop offset="1" stopColor="#B2A6A6"/>
+        <stop stopColor="#B80000"/>
+        <stop offset="0.427109" stopColor="#E70000"/>
+        <stop offset="1" stopColor="#B80000"/>
     </linearGradient>
     </defs>
 </svg>

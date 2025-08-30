@@ -4,12 +4,12 @@ module.exports = {
       "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
       "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
       "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-      // Add other paths if your files are elsewhere
     ],
     theme: {
       extend: {
         fontFamily: {
-          sans: ['var(--font-inter)', 'sans-serif'],
+          sans: ['var(--font-geist-sans)', 'sans-serif'],
+          inter: ['var(--font-inter)', 'sans-serif'],
         },
       },
     },
