@@ -1,29 +1,14 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-
 import { Inter } from 'next/font/google';
-import { AppProvider } from '@/contexts/AppContext';
-import { TooltipProvider } from '@/contexts/TooltipContext';
+
+import { DataFetcher } from "@/components/DataFetcher/DataFetcher";
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 });
-
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 60 * 1000, // 1 hour
-      refetchInterval: 60 * 60 * 1000, // Auto refetch every hour
-    },
-  },
-})
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,11 +35,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
-        <AppProvider>
-          <TooltipProvider>
-            {children}   
-          </TooltipProvider>     
-        </AppProvider>
+        <DataFetcher>
+
+              {children}   
+
+        </DataFetcher>
       </body>
     </html>
   );

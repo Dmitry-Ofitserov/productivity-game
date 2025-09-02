@@ -1,7 +1,8 @@
 // TableCell.tsx
+import { TableDataAggregated, useTableStore } from "@/stores/useTableStore";
+import { TasksDataAggregated } from "@/stores/useTasksStore";
+import { useTooltipDataStore } from "@/stores/useTooltipStore";
 import React from "react";
-import { useTooltipContext } from "@/contexts/TooltipContext";
-import { TableDataAggregated, TasksDataAggregated } from "@/contexts/AppContext";
 
 interface TableCellProps {
   isoDate: string;
@@ -10,8 +11,8 @@ interface TableCellProps {
   cellColor: string;
   points?: number;
   borders: string;
-  tableState: TableDataAggregated;
-  tasksState: TasksDataAggregated;
+  table: TableDataAggregated;
+  tasks: TasksDataAggregated;
 }
 
 export default React.memo(function TableCell({
@@ -21,11 +22,12 @@ export default React.memo(function TableCell({
   cellColor,
   points,
   borders,
-  tableState,
-  tasksState,
+  table,
+  tasks,
 }: TableCellProps) {
-  const { setTooltipContentState } = useTooltipContext(); 
-
+  //const { setTooltipData } = useTooltipContext(); 
+  const setTooltipData = useTooltipDataStore((state) => state.setTooltipData);
+  const tableCellByDate = useTableStore((state) => state.table[isoDate]);
   const handleMouseEnter = React.useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
@@ -33,7 +35,7 @@ export default React.memo(function TableCell({
       const screenCenter = window.innerWidth / 2;
       const position = centerX < screenCenter ? "right" : "left";
   
-      setTooltipContentState(prev => {
+      setTooltipData(prev => {
         if (prev.sticky) return prev;
   
         let tooltipContent: any = {
@@ -43,8 +45,8 @@ export default React.memo(function TableCell({
           tasks: {},
         };
   
-        if (tableState[isoDate] != null) {
-          Object.entries(tableState[isoDate].tasks).forEach(([taskIdKey, task]) => {
+        if (tableCellByDate != null) {
+          Object.entries(tableCellByDate.tasks).forEach(([taskIdKey, task]) => {
             const taskId = Number(taskIdKey);
             tooltipContent.tasks[taskId] = {
               hours: task.hours,
@@ -56,18 +58,18 @@ export default React.memo(function TableCell({
         return tooltipContent;
       });
     },
-    [isoDate, tableState, tasksState, setTooltipContentState]
+    []
   );
 
   const handleClick = React.useCallback(() => {
-    setTooltipContentState((prev) => ({ ...prev, sticky: !prev.sticky }));
-  }, [setTooltipContentState]);
+    setTooltipData((prev) => ({ ...prev, sticky: !prev.sticky }));
+  }, []);
 
   const handleMouseLeave = React.useCallback(() => {
-    setTooltipContentState((prev) =>
+    setTooltipData((prev) =>
       prev.sticky ? prev : { title: "", position: "", sticky: false, tasks: {} }
     );
-  }, [setTooltipContentState]);
+  }, []);
 
   return (
     <button

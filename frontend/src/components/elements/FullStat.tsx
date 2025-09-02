@@ -1,5 +1,5 @@
-import { useAppContext } from "@/contexts/AppContext";
-import { useTooltipContext } from "@/contexts/TooltipContext";
+import { useTasksStore } from "@/stores/useTasksStore";
+import { useTooltipDataStore } from "@/stores/useTooltipStore";
 import React from "react";
 
 
@@ -7,8 +7,10 @@ export default function FullStat({ totalHours, totalPoints }: {
     totalHours: number,
     totalPoints: number,
 }) {
-    const { setTooltipContentState } = useTooltipContext(); 
-    const { tasksState } = useAppContext();
+    //const { setTooltipData } = useTooltipContext(); 
+    //const { tasks } = useAppContext();
+    const setTooltipData = useTooltipDataStore((state) => state.setTooltipData);
+    const tasks = useTasksStore((state) => state.tasks);
     const handleMouseEnter = React.useCallback(
         (event: React.MouseEvent<HTMLButtonElement>) => {
           const rect = event.currentTarget.getBoundingClientRect();
@@ -16,31 +18,31 @@ export default function FullStat({ totalHours, totalPoints }: {
           const screenCenter = window.innerWidth / 2;
           const position = centerX < screenCenter ? "right" : "left";
       
-          setTooltipContentState(prev => {
+          setTooltipData(prev => {
             if (prev.sticky) return prev;
       
             let tooltipContent: any = {
               title: "All tasks",
               position,
               sticky: false,
-              tasks: tasksState,
+              tasks: tasks,
             };
       
             return tooltipContent;
           });
         },
-        [tasksState, setTooltipContentState]
+        [tasks, setTooltipData]
       );
     
       const handleClick = React.useCallback(() => {
-        setTooltipContentState((prev) => ({ ...prev, sticky: !prev.sticky }));
-      }, [setTooltipContentState]);
+        setTooltipData((prev) => ({ ...prev, sticky: !prev.sticky }));
+      }, [setTooltipData]);
     
       const handleMouseLeave = React.useCallback(() => {
-        setTooltipContentState((prev) =>
+        setTooltipData((prev) =>
           prev.sticky ? prev : { title: "", position: "", sticky: false, tasks: {} }
         );
-      }, [setTooltipContentState]);
+      }, [setTooltipData]);
     return (
         <button 
             className="flex justify-evenly items-center border-b-2 border-[#404060] py-[3px] w-full h-[35px]"

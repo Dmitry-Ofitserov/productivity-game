@@ -1,8 +1,9 @@
-import { GoalDataAggregated, TableDataAggregated, TasksDataAggregated } from "@/contexts/AppContext";
-import { useAppContext } from "@/contexts/AppContext";
 import chroma from "chroma-js";
 import TableCell from "../elements/TableCell";
-import { useTooltipContext } from "@/contexts/TooltipContext";
+import { useTableStore } from "@/stores/useTableStore";
+import { useTasksStore } from "@/stores/useTasksStore";
+import { useGoalsStore } from "@/stores/useGoalsStore";
+
 
 function isFirstDayOfSeason(date: Date) {
   const month = date.getMonth() + 1;
@@ -93,7 +94,12 @@ function isLastDayOfMonth(date: Date) {
 
 
 export default function Table() {
-    const { tableState, setTableState, tasksState, goalsState } = useAppContext();
+    //const { table, setTable, tasks, goals } = useAppContext();
+    const table = useTableStore((state) => state.table);
+
+    const tasks = useTasksStore((state) => state.tasks);
+    const goals = useGoalsStore((state) => state.goals);
+
     let startDOW = calculateStartDay(2028);
     let date = new Date(2028, 0, 1);
     let daysCount = 0;
@@ -114,8 +120,8 @@ export default function Table() {
             
 
             const isoDate = dateToIso(date);
-            const hours = tableState[isoDate]?.hours;
-            const points = tableState[isoDate]?.points;
+            const hours = table[isoDate]?.hours;
+            const points = table[isoDate]?.points;
             const cellColor = hours != null? numberToColor(hours): "#000000";
 
             let borders = "";
@@ -153,8 +159,8 @@ export default function Table() {
               cellColor={cellColor}
               points={points}
               borders={borders}
-              tableState={tableState}
-              tasksState={tasksState}
+              table={table}
+              tasks={tasks}
             />
           )}})
         )}
@@ -166,8 +172,8 @@ export default function Table() {
               date2.setDate(daysCount2);
               
               const isoDate = dateToIso(date2);
-              const hours = tableState[isoDate]?.hours;
-              const points = tableState[isoDate]?.points;
+              const hours = table[isoDate]?.hours;
+              const points = table[isoDate]?.points;
               const cellColor = hours != null? numberToColor(hours): "#000000";
 
               let borders = "";
@@ -205,8 +211,8 @@ export default function Table() {
                   cellColor={cellColor}
                   points={points}
                   borders={borders}
-                  tableState={tableState}
-                  tasksState={tasksState}
+                  table={table}
+                  tasks={tasks}
                 />
               )
             }

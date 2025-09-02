@@ -1,14 +1,13 @@
-import { GoalDataAggregated, useAppContext } from "@/contexts/AppContext"
-import { useTooltipContext } from "@/contexts/TooltipContext";
+import { GoalDataAggregated } from "@/stores/useGoalsStore";
+import { useTooltipDataStore } from "@/stores/useTooltipStore";
 import chroma from "chroma-js"
 import React from "react";
 
 
 export default function FinishedGoal({ goal }: {
     goal: GoalDataAggregated,
-}) {
-    const { setTooltipContentState } = useTooltipContext(); 
-    const { tasksState } = useAppContext();
+}) {    
+    const setTooltipData = useTooltipDataStore((state) => state.setTooltipData);
 
     const handleMouseEnter = React.useCallback(
         (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -17,37 +16,31 @@ export default function FinishedGoal({ goal }: {
           const screenCenter = window.innerWidth / 2;
           const position = centerX < screenCenter ? "right" : "left";
       
-          setTooltipContentState(prev => {
+          setTooltipData(prev => {
             if (prev.sticky) return prev;
       
-            let tooltipContent: any = {
+            let tooltipData: any = {
               title: goal.title,
               position,
               sticky: false,
-              tasks: {},
+              goalId: goal.id,
             };
       
-            let tasks: any = {};
-            Object.entries(tasksState).map(([taskId, task]) => {
-                    if (task.goalId === goal.id) tasks[taskId] = task;
-            })
-            
-            tooltipContent.tasks = tasks;
-            return tooltipContent;
+            return tooltipData;
           });
         },
-        [tasksState, setTooltipContentState]
+        [setTooltipData]
       );
     
       const handleClick = React.useCallback(() => {
-        setTooltipContentState((prev) => ({ ...prev, sticky: !prev.sticky }));
-      }, [setTooltipContentState]);
+        setTooltipData((prev) => ({ ...prev, sticky: !prev.sticky }));
+      }, [setTooltipData]);
     
       const handleMouseLeave = React.useCallback(() => {
-        setTooltipContentState((prev) =>
+        setTooltipData((prev) =>
           prev.sticky ? prev : { title: "", position: "", sticky: false, tasks: {} }
         );
-      }, [setTooltipContentState]);
+      }, [setTooltipData]);
     return (
         <button 
             className="h-[25px] flex items-center justify-between"

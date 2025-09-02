@@ -1,27 +1,28 @@
-import { GoalDataAggregated, TasksDataAggregated, useAppContext } from "@/contexts/AppContext";
 import { BigSolvedTickMark, BigUnsolvedTickMark, SmallSolvedTickMark, SmallUnsolvedTickMark } from '../../assets/tick-marks'
 import chroma from "chroma-js";
 import { TagIcon } from '@/assets/tag';
 import StepDescription from "../elements/StepDescription";
 import FinishedGoal from "../elements/FinishedGoal";
 import FullStat from "../elements/FullStat";
+import { useTasksStore } from '@/stores/useTasksStore';
+import { GoalDataAggregated, useGoalsStore } from '@/stores/useGoalsStore';
 
-function calculateMilestoneTotal({ goalsState, goalPosition, milestoneLastPosition }: {
-    goalsState: GoalDataAggregated[];
+function calculateMilestoneTotal({ goals, goalPosition, milestoneLastPosition }: {
+    goals: GoalDataAggregated[];
     goalPosition: number;
     milestoneLastPosition: number;
 }): [number, number] {
     let totalPoints = 0;
     let totalHours = 0;
     for (let milestonePosition = 0; milestonePosition <= milestoneLastPosition; milestonePosition++) {
-        totalPoints += goalsState[goalPosition].milestones[milestonePosition].points;
-        totalHours += goalsState[goalPosition].milestones[milestonePosition].hours;
+        totalPoints += goals[goalPosition].milestones[milestonePosition].points;
+        totalHours += goals[goalPosition].milestones[milestonePosition].hours;
     }
     return [totalPoints, totalHours];
 }
 
-function calculateStepTotal({ goalsState, goalPosition, milestoneLastPosition, stepLastPosition }: {
-    goalsState: GoalDataAggregated[];
+function calculateStepTotal({ goals, goalPosition, milestoneLastPosition, stepLastPosition }: {
+    goals: GoalDataAggregated[];
     goalPosition: number;
     milestoneLastPosition: number;
     stepLastPosition: number;
@@ -29,26 +30,29 @@ function calculateStepTotal({ goalsState, goalPosition, milestoneLastPosition, s
     let totalPoints = 0;
     let totalHours = 0;
     for (let milestonePosition = 0; milestonePosition < milestoneLastPosition; milestonePosition++) {
-        totalPoints += goalsState[goalPosition].milestones[milestonePosition].points;
-        totalHours += goalsState[goalPosition].milestones[milestonePosition].hours;
+        totalPoints += goals[goalPosition].milestones[milestonePosition].points;
+        totalHours += goals[goalPosition].milestones[milestonePosition].hours;
     }
     for (let stepPosition = 0; stepPosition <= stepLastPosition; stepPosition++) {
-        totalPoints += goalsState[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].points;
-        totalHours += goalsState[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].hours;
+        totalPoints += goals[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].points;
+        totalHours += goals[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].hours;
     }
     return [totalPoints, totalHours];
 }
 
 
 export default function Goals() {
-    const { tasksState, goalsState, setGoalsState } = useAppContext();
-    const totalHours = Object.values(tasksState).reduce<number>((sum, task) => sum + task.hours, 0);
-    const totalPoints = Object.values(tasksState).reduce<number>((sum, task) => sum + task.points, 0);
+    //const { tasks, goals, setGoalsState } = useAppContext();
+    const tasks = useTasksStore((state) => state.tasks);
+    const goals = useGoalsStore((state) => state.goals);
+
+    const totalHours = Object.values(tasks).reduce<number>((sum, task) => sum + task.hours, 0);
+    const totalPoints = Object.values(tasks).reduce<number>((sum, task) => sum + task.points, 0);
 
     return (
         <div className="flex flex-[2.3] max-h-[42.6%]" >
             <div className="flex-[4.5] flex gap-[5px] border-[2px] border-[#404060] bg-[#181C20] rounded-[10px] m-[5px] p-[5px] mt-[0px] overflow-x-auto scrollbar-hide">
-                { Object.entries(goalsState).map(([goalPosition, goal]) => {
+                { Object.entries(goals).map(([goalPosition, goal]) => {
                 let milestoneOrder = 0;
                 if (goal.currentLevel !== -1)
                 return (
@@ -67,7 +71,7 @@ export default function Goals() {
                                                 <div 
                                                     className="w-full flex justify-center top-[8px] absolute text-[12px] font-extrabold text-[#000000]"
                                                     style={{ fontFamily: "'Inter', sans-serif" }}
-                                                >{ calculateMilestoneTotal({goalsState, goalPosition: Number(goalPosition), milestoneLastPosition: Number(milestonePosition)})[0] }</div>
+                                                >{ calculateMilestoneTotal({goals, goalPosition: Number(goalPosition), milestoneLastPosition: Number(milestonePosition)})[0] }</div>
                                             </div>:
                                                 <BigUnsolvedTickMark className="absolute left-[5px] top-[-6px] w-[50px]" />
                                             ) : 
@@ -85,7 +89,7 @@ export default function Goals() {
                                                                 <div 
                                                                 className="absolute top-[-1px] text-[10px] font-extrabold text-[#000000]"
                                                                 style={{ fontFamily: "'Inter', sans-serif" }}
-                                                                >{ calculateStepTotal({goalsState, goalPosition: Number(goalPosition), milestoneLastPosition: Number(milestonePosition), stepLastPosition: Number(stepPosition)})[0] }</div>
+                                                                >{ calculateStepTotal({goals, goalPosition: Number(goalPosition), milestoneLastPosition: Number(milestonePosition), stepLastPosition: Number(stepPosition)})[0] }</div>
                                                             </div> : 
                                                             
                                                             <div className="relative w-[30px] left-[15px] top-[-4px] hover:border-1">
@@ -204,7 +208,7 @@ export default function Goals() {
                 totalPoints={totalPoints}
             />
             <div className="flex flex-col justify-start gap-[10px] p-[5px] overflow-y-auto scrollbar-hide">
-                {Object.entries(goalsState).map(([goalPosition, goal]) => {
+                {Object.entries(goals).map(([goalPosition, goal]) => {
                     if (goal.currentLevel === -1){
                         return(
                             <FinishedGoal 

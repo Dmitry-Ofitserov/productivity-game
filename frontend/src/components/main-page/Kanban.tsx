@@ -1,4 +1,4 @@
-import { GoalDataAggregated, KanbanDataAggregated, TasksDataAggregated, useAppContext } from "@/contexts/AppContext";
+import { useKanbanStore } from "@/stores/useKanbanStore";
 import KanbanCard from "../elements/KanbanCard";
 
 
@@ -23,7 +23,8 @@ function formatDuration(durationNumber: number) {
 
 
 export default function Kanban() {
-  const { tasksState, setTasksState, kanbanState, setKanbanState, goalsState } = useAppContext();
+  //const { tasksState, setTasksState, kanbanState, setKanbanState, goalsState } = useAppContext();
+  const kanban = useKanbanStore((state) => state.kanban)
   const DOWMap = ["Daily tasks", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", 'Pile'];
   return (
       <div className="flex-[3] flex m-[5px] border-[2px] border-[#404060] bg-[#181C20] rounded-[10px] overflow-hidden overflow-y-auto ">
@@ -34,7 +35,7 @@ export default function Kanban() {
                   {DOWMap[dow]}
                 </div>
                 <div className="flex flex-col text-[10px] gap-[3px] mt-[5px]">
-                  {kanbanState[dow] && Object.entries(kanbanState[dow]).map(([index, taskId], dowId) => {
+                  {kanban[dow] && Object.entries(kanban[dow]).map(([index, taskId], dowId) => {
                     return (
                       <KanbanCard key={taskId} taskId={taskId} />
                     )

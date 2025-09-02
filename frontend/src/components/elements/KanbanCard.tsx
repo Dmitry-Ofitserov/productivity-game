@@ -1,8 +1,10 @@
-import { GoalDataAggregated, useAppContext } from "@/contexts/AppContext"
+import { useGoalsStore } from "@/stores/useGoalsStore";
+import { useTableStore } from "@/stores/useTableStore";
+import { useTasksStore } from "@/stores/useTasksStore";
 import chroma from "chroma-js";
 
 function formatDate(isoDateString: string) {
-    if (!isoDateString) return "хуй";
+    if (!isoDateString) return "error";
     const [datePart, timePart] = isoDateString.split(' ');
     const [_, month, day] = datePart.split('-');
     const [hours, minutes] = timePart.split(':');
@@ -20,14 +22,9 @@ function formatDuration(durationNumber: number) {
     return `${hours}:${paddedMinutes}:${paddedSeconds}`;
 }
 
-function findColor(goalsState: GoalDataAggregated[], goalId: number) {
-    const goal = goalsState.find(g => g.id === goalId);
-    return goal ? goal.color : "#AAAA66";
-}
-
 function darkenAsymptotic(color: string, factor = 0.7) {
     const lab = chroma(color).lab(); 
-    let L = lab[0]; // Lightness 0-100
+    let L = lab[0];
 
     const darkenAmount = factor * (L / 100); 
   
@@ -40,8 +37,10 @@ export default function KanbanCard ({ taskId, date }: {
     taskId: number,
     date?: string,
 }) {
-    const { tableState, tasksState, goalsState } = useAppContext();
-    const color = findColor(goalsState, taskId);
+    //const { tableState, tasksState, goalsState } = useAppContext();
+    const table = date? useTableStore((state) => state.table[date]): null;
+    const task = useTasksStore((state) => state.tasks[taskId])
+    const color = useGoalsStore((state) => state.goals.find(goal => goal.id === task.goalId)?.color) || "#AAAAAA";
     return (
         <div 
             key={`${taskId}`} 
@@ -54,17 +53,17 @@ export default function KanbanCard ({ taskId, date }: {
             <div className="flex justify-between mb-[2px]">
                 <button className="w-[12px] h-[12px] border-[1px] border-[#8787B9] rounded-[3px]"></button>
                 <div className="flex gap-[3px]">
-                    <button className="h-[12px] px-[4px] bg-[#521779] rounded-[3px]">{formatDate(tasksState[taskId].endTime)}</button>
+                    <button className="h-[12px] px-[4px] bg-[#521779] rounded-[3px]">{formatDate(task?.endTime)}</button>
                     <button className="h-[12px] px-[4px] bg-[#85560B] rounded-[3px]">
-                        {date? 
-                            `${tableState[date].tasks[taskId].hours} / ${tasksState[taskId].hours}`: 
-                            `${formatDuration(tasksState[taskId].hours)}`
+                        {table? 
+                            `${table.tasks[taskId].hours} / ${task.hours}`: 
+                            `${formatDuration(task?.hours)}`
                         }
                     </button>
                     <button className="h-[12px] px-[4px] bg-[#85560B] rounded-[3px]">
-                        {date? 
-                            `${tableState[date].tasks[taskId].points} / ${tasksState[taskId].points}`: 
-                            `${tasksState[taskId].points}`
+                        {table? 
+                            `${table.tasks[taskId].points} / ${task.points}`: 
+                            `${task?.points}`
                         }
                     </button>
                 </div>
@@ -72,7 +71,8 @@ export default function KanbanCard ({ taskId, date }: {
                     <img src="main-page/more-options.svg" />
                 </button>
             </div>
-            {tasksState[taskId].description}
+            {task?.description}
+            {color}
         </div>
     )
 }
