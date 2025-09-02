@@ -16,7 +16,7 @@ function calculateMilestoneTotal({ goals, goalPosition, milestoneLastPosition }:
     let totalHours = 0;
     for (let milestonePosition = 0; milestonePosition <= milestoneLastPosition; milestonePosition++) {
         totalPoints += goals[goalPosition].milestones[milestonePosition].points;
-        totalHours += goals[goalPosition].milestones[milestonePosition].hours;
+        totalHours += goals[goalPosition].milestones[milestonePosition].ms / 1000 / 3600;
     }
     return [totalPoints, totalHours];
 }
@@ -31,22 +31,21 @@ function calculateStepTotal({ goals, goalPosition, milestoneLastPosition, stepLa
     let totalHours = 0;
     for (let milestonePosition = 0; milestonePosition < milestoneLastPosition; milestonePosition++) {
         totalPoints += goals[goalPosition].milestones[milestonePosition].points;
-        totalHours += goals[goalPosition].milestones[milestonePosition].hours;
+        totalHours += goals[goalPosition].milestones[milestonePosition].ms / 1000 / 3600;
     }
     for (let stepPosition = 0; stepPosition <= stepLastPosition; stepPosition++) {
         totalPoints += goals[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].points;
-        totalHours += goals[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].hours;
+        totalHours += goals[goalPosition].milestones[milestoneLastPosition].steps[stepPosition].ms / 1000 / 3600;
     }
     return [totalPoints, totalHours];
 }
 
 
 export default function Goals() {
-    //const { tasks, goals, setGoalsState } = useAppContext();
     const tasks = useTasksStore((state) => state.tasks);
     const goals = useGoalsStore((state) => state.goals);
 
-    const totalHours = Object.values(tasks).reduce<number>((sum, task) => sum + task.hours, 0);
+    const totalHours = Object.values(tasks).reduce<number>((sum, task) => sum + task.ms, 0) / 1000 / 3600;
     const totalPoints = Object.values(tasks).reduce<number>((sum, task) => sum + task.points, 0);
 
     return (

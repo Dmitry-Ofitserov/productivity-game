@@ -58,7 +58,7 @@ export default function FullStat({ totalHours, totalPoints }: {
                 className="flex items-center bg-[#DC1500] h-full px-[4px] ml-[10px] rounded-[5px]"
                 style={{fontFamily:"'Inter'", fontWeight: 800}}
             >
-                {totalHours}
+                {Math.round(totalHours*10)/10}
             </div>
         </h4>
         <h4 

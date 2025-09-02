@@ -49,7 +49,7 @@ export default React.memo(function TableCell({
           Object.entries(tableCellByDate.tasks).forEach(([taskIdKey, task]) => {
             const taskId = Number(taskIdKey);
             tooltipContent.tasks[taskId] = {
-              hours: task.hours,
+              ms: task.ms,
               points: task.points,
               endTime: task.endTime,
             };

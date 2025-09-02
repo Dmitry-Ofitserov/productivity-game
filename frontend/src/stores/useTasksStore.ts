@@ -6,7 +6,7 @@ export type TasksDataAggregated = {
     [taskId: number]: { 
         description: string
         points: number
-        hours: number
+        ms: number
         endTime: string
         isSolved: number | null
         stepId: number
@@ -29,7 +29,7 @@ export const useTasksStore = create<TasksStore>((set) => ({
             acc[row.id] = {
                 description: row.description,
                 points: row.points,
-                hours: row.duration,
+                ms: row.ms,
                 endTime: row.end_time,
                 isSolved: row.is_solved,
                 stepId: row.step_id,

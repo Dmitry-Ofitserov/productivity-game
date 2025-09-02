@@ -62,7 +62,7 @@ export default function FinishedGoal({ goal }: {
                     className="flex items-center justify-center mr-[10px] bg-[#DC1500] h-full px-[3px] rounded-[5px] text-[12px] min-w-[30px]"
                     style={{fontFamily:"'Inter'", fontWeight: 800}}
                 >
-                    {goal.hours}
+                    {Math.round(goal.ms / 1000 / 3600 * 10) / 10}
                 </div>
                 <div 
                     className="flex items-center justify-center bg-[#C97C00] h-full px-[3px] rounded-[5px] text-[12px] min-w-[30px]"

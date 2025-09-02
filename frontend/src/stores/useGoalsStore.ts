@@ -7,14 +7,14 @@ export type StepData = {
     id: number
     description: string
     points: number
-    hours: number
+    ms: number
 }
 
 export type MilestoneDataAggregated = {
     id: number
     description: string
     points: number
-    hours: number
+    ms: number
     steps: StepData[]
 }
 
@@ -24,7 +24,7 @@ export type GoalDataAggregated = {
     currentLevel: number
     color: string
     points: number
-    hours: number
+    ms: number
     milestones: MilestoneDataAggregated[]
 }
 
@@ -49,28 +49,28 @@ export const useGoalsStore = create<GoalsStore>((set) => ({
                 currentLevel: rowGoal.current_level,
                 color: rowGoal.color,
                 points: 0,
-                hours: 0,
+                ms: 0,
                 milestones: milestonesData.reduce<MilestoneDataAggregated[]>((milestonesAcc, rowMilestone) => {
                     if (rowMilestone.goal_id === rowGoal.id)
                     milestonesAcc[rowMilestone.position] = {
                         id: rowMilestone.id,
                         description: rowMilestone.description,
                         points: 0,
-                        hours: 0,
+                        ms: 0,
                         steps: stepsData.reduce<StepData[]>((stepsAcc, rowSteps) => {
                             if (rowSteps.milestone_id === rowMilestone.id)
                                 stepsAcc[rowSteps.position] = {
                                     id: rowSteps.id,
                                     description: rowSteps.description,
                                     points: 0,
-                                    hours: 0
+                                    ms: 0
                                 }
                             return stepsAcc
                         }, []).concat({
                             id: 0,
                             description: "milestone",
                             points: 0,
-                            hours: 0,
+                            ms: 0,
                         })
                     }
                     return milestonesAcc
@@ -88,15 +88,15 @@ export const useGoalsStore = create<GoalsStore>((set) => ({
                         task.goalId = goal.id
                         task.milestoneId = milestone.id
                         if (task.isSolved) {
-                            step.hours += task.hours
+                            step.ms += task.ms
                             step.points += task.points
                         }
                     }
                     })
-                    milestone.hours += step.hours
+                    milestone.ms += step.ms
                     milestone.points += step.points
                 }
-                goal.hours += milestone.hours
+                goal.ms += milestone.ms
                 goal.points += milestone.points
             }
           }

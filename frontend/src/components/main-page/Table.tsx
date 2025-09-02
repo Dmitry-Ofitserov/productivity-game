@@ -19,11 +19,13 @@ function isFirstDowOfSeason(date: Date) {
   return (month%3 === 0 && day <= 7 && day > 1);
 }
 
-function numberToColor(value: number): string {
+function calculateCellColor(ms: number): string {
+  const hours = ms / 1000 / 3600
+  console.log("хуй", ms, hours)
   const min = 0;
   const max = 10;
-  const clamped = Math.min(Math.max(value, min), max);
-  if (value >= 10) {
+  const clamped = Math.min(Math.max(hours, min), max);
+  if (hours >= 10) {
     // Special gradient case
     return "linear-gradient(to bottom right, #FF0000, #FFFF00)";
   }
@@ -38,32 +40,6 @@ export function dateToIso(date: Date): string {
   const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
-}
-
-function calculateDayOfWeek(year: number, day: number) {
-  
-  if (isNaN(year) || isNaN(day) || day < 1 || day > 366) {
-      alert('Please enter valid values. Day must be between 1 and 366.');
-      return;
-  }
-
-  const date = new Date(year, 0, 1);
-  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-  
-  if (day > 365 && !isLeapYear) {
-      alert(`${year} is not a leap year. Day must be between 1 and 365.`);
-      return;
-  }
-
-  date.setDate(day);
-  const dayOfWeek = date.getDay();
-  const mondayBasedDOW = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  
-  const startOfYear = new Date(year, 0, 1);
-  const startDay = startOfYear.getDay();
-  const adjustedStartDay = startDay === 0 ? 6 : startDay - 1; // Convert to Monday-based
-
-  return mondayBasedDOW;
 }
 
 function calculateStartDay(year: number) {
@@ -96,9 +72,7 @@ function isLastDayOfMonth(date: Date) {
 export default function Table() {
     //const { table, setTable, tasks, goals } = useAppContext();
     const table = useTableStore((state) => state.table);
-
     const tasks = useTasksStore((state) => state.tasks);
-    const goals = useGoalsStore((state) => state.goals);
 
     let startDOW = calculateStartDay(2028);
     let date = new Date(2028, 0, 1);
@@ -120,9 +94,9 @@ export default function Table() {
             
 
             const isoDate = dateToIso(date);
-            const hours = table[isoDate]?.hours;
+            const ms = table[isoDate]?.ms;
             const points = table[isoDate]?.points;
-            const cellColor = hours != null? numberToColor(hours): "#000000";
+            const cellColor = ms != null? calculateCellColor(ms): "#000000";
 
             let borders = "";
 
@@ -172,9 +146,9 @@ export default function Table() {
               date2.setDate(daysCount2);
               
               const isoDate = dateToIso(date2);
-              const hours = table[isoDate]?.hours;
+              const ms = table[isoDate]?.ms;
               const points = table[isoDate]?.points;
-              const cellColor = hours != null? numberToColor(hours): "#000000";
+              const cellColor = ms != null? calculateCellColor(ms): "#000000";
 
               let borders = "";
 

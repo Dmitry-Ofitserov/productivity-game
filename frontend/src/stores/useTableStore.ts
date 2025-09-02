@@ -5,10 +5,10 @@ import { create } from 'zustand'
 export type TableDataAggregated = {
     [date: string]: {
         points: number,
-        hours: number,
+        ms: number,
         tasks: {
             [taskId: number]: {
-                hours: number,
+                ms: number,
                 points: number,
                 endTime: string,
             }
@@ -30,15 +30,15 @@ export const useTableStore = create<TableStore>((set) => ({
             if (!acc[row.date]) {
                 acc[row.date] = {
                     points: 0,
-                    hours: 0,
+                    ms: 0,
                     tasks: {},
                 }
             }
 
             acc[row.date].points += row.points
-            acc[row.date].hours += row.hours
+            acc[row.date].ms += row.ms
             acc[row.date].tasks[row.task_id] = {
-                hours: row.hours,
+                ms: row.ms,
                 points: row.points,
                 endTime: row.end_time,
             }

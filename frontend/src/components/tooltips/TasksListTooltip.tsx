@@ -7,7 +7,7 @@ export function calculateTotal(tooltipTasks: TasksDataAggregated) {
     let totalHours = 0;
     let totalPoints = 0;
     Object.entries(tooltipTasks).map(([taskId, task]) => {
-        totalHours += task.hours;
+        totalHours += task.ms / 1000 / 3600;
         totalPoints += task.points;
     })
     return {totalHours, totalPoints};
@@ -72,7 +72,7 @@ export default function TasksListTooltip() {
                             className="ml-[5px] bg-[#95560B] rounded-[5px] px-[5px]"
                             style={{fontFamily: "'Inter'"}}
                         >
-                            {totalHours}
+                            {Math.round(totalHours*10)/10}
                         </span>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
