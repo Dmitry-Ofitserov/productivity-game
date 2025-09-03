@@ -4,7 +4,6 @@ import { TagIcon } from '@/assets/tag';
 import StepDescription from "../elements/StepDescription";
 import FinishedGoal from "../elements/FinishedGoal";
 import FullStat from "../elements/FullStat";
-import { useTasksStore } from '@/stores/useTasksStore';
 import { GoalDataAggregated, useGoalsStore } from '@/stores/useGoalsStore';
 
 function calculateMilestoneTotal({ goals, goalPosition, milestoneLastPosition }: {
@@ -42,12 +41,7 @@ function calculateStepTotal({ goals, goalPosition, milestoneLastPosition, stepLa
 
 
 export default function Goals() {
-    const tasks = useTasksStore((state) => state.tasks);
     const goals = useGoalsStore((state) => state.goals);
-
-    const totalHours = Object.values(tasks).reduce<number>((sum, task) => sum + task.ms, 0) / 1000 / 3600;
-    const totalPoints = Object.values(tasks).reduce<number>((sum, task) => sum + task.points, 0);
-
     return (
         <div className="flex flex-[2.3] max-h-[42.6%]" >
             <div className="flex-[4.5] flex gap-[5px] border-[2px] border-[#404060] bg-[#181C20] rounded-[10px] m-[5px] p-[5px] mt-[0px] overflow-x-auto scrollbar-hide">
@@ -202,10 +196,7 @@ export default function Goals() {
                 })}
             </div>
         <div className="flex-1 flex flex-col border-1 ml-[0px] m-[5px] border-[2px] border-[#404060] bg-[#181C20] rounded-[10px] mt-[0px]">
-            <FullStat
-                totalHours={totalHours}
-                totalPoints={totalPoints}
-            />
+            <FullStat/>
             <div className="flex flex-col justify-start gap-[10px] p-[5px] overflow-y-auto scrollbar-hide">
                 {Object.entries(goals).map(([goalPosition, goal]) => {
                     if (goal.currentLevel === -1){

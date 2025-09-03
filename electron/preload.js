@@ -13,4 +13,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getMilestones: () => ipcRenderer.invoke('get-milestones'),
   getSteps: () => ipcRenderer.invoke('get-steps'),
   getTags: () => ipcRenderer.invoke('get-tags'),
+
+  updateTaskMs: (taskId, ms) => ipcRenderer.invoke('update-task-ms', {taskId, ms}),
+  updateTaskIsSolved: (taskId, isSolved) => ipcRenderer.invoke('update-task-is-solved', {taskId, isSolved}),
+
 });

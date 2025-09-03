@@ -1,8 +1,6 @@
 import chroma from "chroma-js";
 import TableCell from "../elements/TableCell";
 import { useTableStore } from "@/stores/useTableStore";
-import { useTasksStore } from "@/stores/useTasksStore";
-import { useGoalsStore } from "@/stores/useGoalsStore";
 
 
 function isFirstDayOfSeason(date: Date) {
@@ -21,7 +19,6 @@ function isFirstDowOfSeason(date: Date) {
 
 function calculateCellColor(ms: number): string {
   const hours = ms / 1000 / 3600
-  console.log("хуй", ms, hours)
   const min = 0;
   const max = 10;
   const clamped = Math.min(Math.max(hours, min), max);
@@ -72,7 +69,6 @@ function isLastDayOfMonth(date: Date) {
 export default function Table() {
     //const { table, setTable, tasks, goals } = useAppContext();
     const table = useTableStore((state) => state.table);
-    const tasks = useTasksStore((state) => state.tasks);
 
     let startDOW = calculateStartDay(2028);
     let date = new Date(2028, 0, 1);
@@ -134,7 +130,6 @@ export default function Table() {
               points={points}
               borders={borders}
               table={table}
-              tasks={tasks}
             />
           )}})
         )}
@@ -186,7 +181,6 @@ export default function Table() {
                   points={points}
                   borders={borders}
                   table={table}
-                  tasks={tasks}
                 />
               )
             }

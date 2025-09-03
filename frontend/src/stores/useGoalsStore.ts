@@ -31,7 +31,11 @@ export type GoalDataAggregated = {
 interface GoalsStore {
     goals: GoalDataAggregated[]
     loadGoals: (tasks: TasksDataAggregated) => Promise<void>
-    setGoals: (updater: GoalDataAggregated[] | ((state: GoalDataAggregated[]) => GoalDataAggregated[])) => void
+    setGoals: (updater: GoalDataAggregated[] | ((state: GoalDataAggregated[]) => GoalDataAggregated[])) => void,
+    updateGoal: (
+        goalId: number,
+        updater: (goal: GoalDataAggregated) => GoalDataAggregated
+      ) => void;
 }
 
 export const useGoalsStore = create<GoalsStore>((set) => ({
@@ -105,4 +109,11 @@ export const useGoalsStore = create<GoalsStore>((set) => ({
     },
     setGoals: (updater) =>
         set((state) => ({goals: typeof updater === "function" ? updater(state.goals) : updater})),
+    
+    updateGoal: (goalId, updater) =>
+        set((state) => ({
+          goals: state.goals.map((g) =>
+            g.id === goalId ? updater(g) : g
+          ),
+        })),
 }))

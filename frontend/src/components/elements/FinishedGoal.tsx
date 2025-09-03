@@ -7,6 +7,7 @@ import React from "react";
 export default function FinishedGoal({ goal }: {
     goal: GoalDataAggregated,
 }) {    
+    console.log("FinishedGoalRerender", )
     const setTooltipData = useTooltipDataStore((state) => state.setTooltipData);
 
     const handleMouseEnter = React.useCallback(

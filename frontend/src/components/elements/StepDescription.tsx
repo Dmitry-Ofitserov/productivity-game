@@ -1,5 +1,4 @@
 import { MilestoneDataAggregated, StepData } from "@/stores/useGoalsStore";
-import { useTasksStore } from "@/stores/useTasksStore";
 import { useTooltipDataStore } from "@/stores/useTooltipStore";
 import React from "react";
 

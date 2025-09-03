@@ -1,6 +1,7 @@
 'use client'
 
 import { create } from "zustand"
+import { immer } from "zustand/middleware/immer"
 
 export type TasksDataAggregated = {
     [taskId: number]: { 
@@ -18,15 +19,15 @@ export type TasksDataAggregated = {
 interface TasksStore {
     tasks: TasksDataAggregated
     loadTasks: () => Promise<void>
-    setTasks: (updater: TasksDataAggregated | ((state: TasksDataAggregated) => TasksDataAggregated)) => void
-}
+    setTasks: (fn: (tasks: TasksDataAggregated) => void) => void;}
 
-export const useTasksStore = create<TasksStore>((set) => ({
-    tasks: {},
-    loadTasks: async () => {
-        const tasksData = await window.electronAPI.getTasks();
-        const tasksDataAggregated = tasksData.reduce<TasksDataAggregated>((acc, row) => {
-            acc[row.id] = {
+    export const useTasksStore = create<TasksStore>()(
+        immer((set) => ({
+          tasks: {},
+          loadTasks: async () => {
+            const tasksData = await window.electronAPI.getTasks()
+            const tasksDataAggregated = tasksData.reduce<TasksDataAggregated>((acc, row) => {
+              acc[row.id] = {
                 description: row.description,
                 points: row.points,
                 ms: row.ms,
@@ -34,12 +35,15 @@ export const useTasksStore = create<TasksStore>((set) => ({
                 isSolved: row.is_solved,
                 stepId: row.step_id,
                 milestoneId: 0,
-                goalId: 0
-            }
-            return acc
-        }, {})
-        set({ tasks: tasksDataAggregated })
-    },
-    setTasks: (updater) =>
-        set((state) => ({tasks: typeof updater === "function" ? updater(state.tasks) : updater})),
-}))
+                goalId: 0,
+              }
+              return acc
+            }, {})
+            set({ tasks: tasksDataAggregated })
+          },
+          setTasks: (fn) =>
+            set((state) => {
+              fn(state.tasks)
+            }),
+        }))
+      )

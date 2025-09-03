@@ -8,6 +8,8 @@ export interface IElectronAPI {
   getMilestones: () => Promise<any[]>;
   getSteps: () => Promise<any[]>;
   getTags: () => Promise<any[]>;
+  updateTaskMs: (taskId: number, ms: number) => Promise<any>;
+  updateTaskIsSolved: (taskId: number, isSolved: number) => Promise<any>;
 }
 
 declare global {

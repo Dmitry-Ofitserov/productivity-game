@@ -3,14 +3,13 @@ import { useTooltipDataStore } from "@/stores/useTooltipStore";
 import React from "react";
 
 
-export default function FullStat({ totalHours, totalPoints }: {
-    totalHours: number,
-    totalPoints: number,
-}) {
-    //const { setTooltipData } = useTooltipContext(); 
-    //const { tasks } = useAppContext();
+export default function FullStat() {
     const setTooltipData = useTooltipDataStore((state) => state.setTooltipData);
     const tasks = useTasksStore((state) => state.tasks);
+    
+    const totalHours = Object.values(tasks).reduce<number>((sum, task) => sum + task.ms, 0) / 1000 / 3600;
+    const totalPoints = Object.values(tasks).reduce<number>((sum, task) => task.isSolved === 1? sum + task.points: sum, 0);
+
     const handleMouseEnter = React.useCallback(
         (event: React.MouseEvent<HTMLButtonElement>) => {
           const rect = event.currentTarget.getBoundingClientRect();

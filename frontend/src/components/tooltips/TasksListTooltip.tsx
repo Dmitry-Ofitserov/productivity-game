@@ -61,7 +61,7 @@ export default function TasksListTooltip() {
     const isTableDate = checkIsTableDate( tooltipData.title )
     const tooltipTasks = findTooltipTasks(isTableDate, tooltipData);
     const {totalHours, totalPoints} = calculateTotal(tooltipTasks);
-
+    
     return (
         <div className={`absolute ${tooltipData.position === "right"? "right-0": ""} m-[40px] shadow-[0_20px_30px_rgba(0,0,0,1)] border-2 border-[#779] bg-[#334] rounded-[10px] w-[30%]`}>
             <div className="flex flex-row-reverse border-b-[2px] border-[#779]">

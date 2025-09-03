@@ -6,6 +6,8 @@ const fs = require('fs');
 const fsp = require('fs').promises;
 const https = require('https');
 
+const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+
 const preloadPath = path.resolve(__dirname, 'preload.js');
 const isDev = process.env.NODE_ENV === 'development';
 const dbPath = isDev 
@@ -81,13 +83,25 @@ function showErrorPage(htmlContent) {
   mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`);
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  if (isDev) {
+    try {
+      const name = await installExtension(REACT_DEVELOPER_TOOLS);
+      console.log(`Added Extension: ${name}`);
+    } catch (err) {
+      console.error('Failed to install React DevTools:', err);
+    }
+  }
+
+  // Only create the window AFTER the extension is installed
   createWindow();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
@@ -170,3 +184,33 @@ ipcMain.handle('get-tags', async (event) => {
     throw new Error(`Database error: ${error.message}`);
   }
 });
+
+ipcMain.handle('update-task-ms', async (event, { taskId, ms }) => {
+  try {
+    const query = db.prepare('UPDATE tasks SET ms = ? WHERE id = ?');
+    const result = query.run(ms, taskId);
+
+    if (result.changes === 0) {
+      throw new Error(`Task with id ${taskId} not found`);
+    }
+
+    return { success: true };
+  } catch (error) {
+    throw new Error(`Database error: ${error.message}`);
+  }
+});
+
+ipcMain.handle('update-task-is-solved', async (event, { taskId, isSolved}) => {
+  try {
+    const query = db.prepare('UPDATE tasks SET is_solved = ? WHERE id = ?');
+    const result = query.run(isSolved, taskId);
+
+    if (result.changes === 0) {
+      throw new Error(`Task with id ${taskId} not found`);
+    }
+
+    return {success: true};
+  } catch (error) {
+    throw new Error(`Database error: ${error.message}`);
+  }
+})

@@ -2,28 +2,8 @@ import { useKanbanStore } from "@/stores/useKanbanStore";
 import KanbanCard from "../elements/KanbanCard";
 
 
-function formatDate(isoDateString: string) {
-    if (!isoDateString) return "хуй";
-    const [datePart, timePart] = isoDateString.split(' ');
-    const [_, month, day] = datePart.split('-');
-    const [hours, minutes] = timePart.split(':');
-    return `${day}-${month} ${hours}:${minutes}`;
-}
-
-function formatDuration(durationNumber: number) {
-    if (durationNumber == null) return "хуй";
-    const hours = Math.floor(durationNumber);
-    const minutes = Math.floor((durationNumber*60) % 60);
-    const seconds = Math.floor((durationNumber*3600) % 60);
-    const paddedMinutes = minutes.toString().padStart(2, '0');
-    const paddedSeconds = seconds.toString().padStart(2, '0');
-    
-    return `${hours}:${paddedMinutes}:${paddedSeconds}`;
-}
-
-
 export default function Kanban() {
-  //const { tasksState, setTasksState, kanbanState, setKanbanState, goalsState } = useAppContext();
+  
   const kanban = useKanbanStore((state) => state.kanban)
   const DOWMap = ["Daily tasks", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", 'Pile'];
   return (

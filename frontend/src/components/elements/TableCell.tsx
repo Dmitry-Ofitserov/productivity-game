@@ -12,7 +12,6 @@ interface TableCellProps {
   points?: number;
   borders: string;
   table: TableDataAggregated;
-  tasks: TasksDataAggregated;
 }
 
 export default React.memo(function TableCell({
@@ -23,9 +22,7 @@ export default React.memo(function TableCell({
   points,
   borders,
   table,
-  tasks,
-}: TableCellProps) {
-  //const { setTooltipData } = useTooltipContext(); 
+}: TableCellProps) { 
   const setTooltipData = useTooltipDataStore((state) => state.setTooltipData);
   const tableCellByDate = useTableStore((state) => state.table[isoDate]);
   const handleMouseEnter = React.useCallback(
